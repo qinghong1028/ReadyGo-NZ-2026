@@ -1,4 +1,4 @@
-const CACHE = 'nzdaily-shell-v3'
+const CACHE = 'nzdaily-shell-v4'
 const rootUrl = new URL('./', self.location.href)
 const manifestUrl = new URL('offline-assets.json', rootUrl)
 
@@ -10,10 +10,8 @@ self.addEventListener('install', (event) => {
     if (!Array.isArray(paths) || !paths.includes('index.html')) throw new Error('离线资源清单格式不正确')
     const cache = await caches.open(CACHE)
     await cache.put(manifestUrl, response)
-    const urls = [rootUrl.href, ...paths.map((path) => new URL(path, rootUrl).href)]
-    for (let index = 0; index < urls.length; index += 6) {
-      await cache.addAll(urls.slice(index, index + 6))
-    }
+    const shellPaths = paths.filter((path) => path === 'index.html' || path === 'manifest.webmanifest' || path.startsWith('assets/') || path.startsWith('icon-'))
+    await cache.addAll([rootUrl.href, ...shellPaths.map((path) => new URL(path, rootUrl).href)])
     await self.skipWaiting()
   })())
 })
